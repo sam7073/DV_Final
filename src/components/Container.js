@@ -11,9 +11,13 @@ const StyledContainer = styled.span`
   justify-content: center;
 
   font-size: ${(props) => props.fontSize || '20px'};
+
+  overflow: auto;
+
+  position: relative;
 `;
 
-export function Container({ width, height, children, margin_left, fd }) {
+export function Container({ width, height, children, fd }) {
   return (
     <StyledContainer width={width} height={height} fd={fd}>
       {children}
