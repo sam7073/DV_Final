@@ -1,18 +1,18 @@
-import './App.css';
-import Card from './components/Card';
-import Button from './components/Buttons';
-import Container from './components/Container';
+import "./App.css";
+import Card from "./components/Card";
+import Button from "./components/Buttons";
+import Container from "./components/Container";
 
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
 
-import Main from './Routes/Main';
-import Data from './Routes/Data';
-import DV1 from './Routes/DV1';
-import DV2 from './Routes/DV2';
+import Main from "./Routes/Main";
+import Data from "./Routes/Data";
+import DV1 from "./Routes/DV1";
+import DV2 from "./Routes/DV2";
 
 function App() {
   return (
-    <Container width="850px" height="600px">
+    <Container width="1200px" height="900px" jc="center">
       <BrowserRouter basename="/DV_Final">
         <Card width="200px" height="600px" fd="column">
           <Link to="/data">

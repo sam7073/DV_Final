@@ -26,7 +26,13 @@ const StyledButton = styled.button`
   background-color: ${(props) =>
     (props.primary && "#960820") || (props.secondary && "#c8bdad") || props.bg};
 
+  transition: 0.3s;
   cursor: pointer;
+
+  &:hover {
+    background-color: #960820;
+    color: white;
+  }
 `;
 
 export default function Button(props) {
