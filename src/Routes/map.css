@@ -1,0 +1,12 @@
+.label {
+  fill: black;
+  font-size: 12px;
+  font-weight: 900;
+}
+path {
+  fill: darkseagreen;
+}
+path:hover {
+  fill: rgba(255, 140, 0, 0.5);
+  cursor: zoom-in;
+}
