@@ -35,7 +35,9 @@ function App() {
           <Switch>
             <Route exact path="/" component={Main}></Route>
             <Route path="/data" component={Data}></Route>
-            <Route path="/dv1" component={DV1}></Route>
+            <Route path="/dv1" component={DV1}>
+              <div className="d31"></div>
+            </Route>
             <Route path="/dv2" component={DV2}></Route>
           </Switch>
         </Card>

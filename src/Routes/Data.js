@@ -96,6 +96,7 @@ export default function Data(props) {
       });
     } else {
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year]);
   return (
     <Container fd="column">
