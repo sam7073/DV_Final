@@ -1,7 +1,7 @@
 .label {
-  fill: black;
-  font-size: 12px;
-  font-weight: 900;
+  fill: aqua;
+  font-size: 15px;
+  font-weight: normal;
 }
 path {
   fill: darkseagreen;

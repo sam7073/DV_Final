@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import * as d3 from "d3";
-import data2017 from "../Assets/data/2017_data.csv";
-import data2018 from "../Assets/data/2018_data.csv";
-import data2019 from "../Assets/data/2019_data.csv";
-import styled from "styled-components";
+import React, { useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import data2017 from '../Assets/data/2017_data.csv';
+import data2018 from '../Assets/data/2018_data.csv';
+import data2019 from '../Assets/data/2019_data.csv';
+import styled from 'styled-components';
 
-import Container from "../components/Container";
-import Button from "../components/Buttons";
+import Container from '../components/Container';
+import Button from '../components/Buttons';
 
 const StyledRow1 = styled.div`
   width: 540px;
@@ -51,11 +51,11 @@ export default function Data(props) {
   useEffect(() => {
     if (year === 2017) {
       d3.csv(data2017, function (data, index) {
-        const see = data["발생지시도"];
-        const gungoo = data["발생지시군구"];
-        const lat = data["위도"];
-        const lng = data["경도"];
-        const bob = data["법규위반"];
+        const see = data['발생지시도'];
+        const gungoo = data['발생지시군구'];
+        const lat = data['위도'];
+        const lng = data['경도'];
+        const bob = data['법규위반'];
         Rows.push(
           <StyledRow1
             key={index}
@@ -66,11 +66,11 @@ export default function Data(props) {
       });
     } else if (year === 2018) {
       d3.csv(data2018, function (data, index) {
-        const see = data["발생지시도"];
-        const gungoo = data["발생지시군구"];
-        const lat = data["위도"];
-        const lng = data["경도"];
-        const bob = data["법규위반"];
+        const see = data['발생지시도'];
+        const gungoo = data['발생지시군구'];
+        const lat = data['위도'];
+        const lng = data['경도'];
+        const bob = data['법규위반'];
         Rows.push(
           <StyledRow2
             key={index}
@@ -81,11 +81,11 @@ export default function Data(props) {
       });
     } else if (year === 2019) {
       d3.csv(data2019, function (data, index) {
-        const see = data["발생지시도"];
-        const gungoo = data["발생지시군구"];
-        const lat = data["위도"];
-        const lng = data["경도"];
-        const bob = data["가해자법규위반"];
+        const see = data['발생지시도'];
+        const gungoo = data['발생지시군구'];
+        const lat = data['위도'];
+        const lng = data['경도'];
+        const bob = data['가해자법규위반'];
         Rows.push(
           <StyledRow3
             key={index}

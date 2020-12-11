@@ -1,83 +1,232 @@
-import React, { useEffect, useState } from "react";
-import * as d3 from "d3";
-import * as topojson from "topojson";
-import koreaMap from "../Assets/data/seoul_municipalities_topo_simple.json";
-import "./map.css";
+import React, { useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import * as topojson from 'topojson';
+import koreaMap from '../Assets/data/seoul_municipalities_topo_simple.json';
+import './map.css';
+import Button from '../components/Buttons';
+import Container from '../components/Container';
 
-import data2017 from "../Assets/data/2017_data.csv";
-import data2018 from "../Assets/data/2018_data.csv";
-import data2019 from "../Assets/data/2019_data.csv";
-
-function load_data(setIsLoaded) {
-  const tuples = [];
-  d3.csv(data2017, function (data) {
-    const lat = Number(data["위도"]);
-    const lng = Number(data["경도"]);
-    tuples.push([lat, lng]);
-  }).then(() => {
-    setIsLoaded(true);
-    console.log(tuples);
-    console.log(typeof tuples);
-    return tuples;
-  });
-}
-
-function init_DV1() {
-  const geojson = topojson.feature(
-    koreaMap,
-    koreaMap.objects.seoul_municipalities_geo
-  );
-  const width = 500;
-  const height = 500;
-  const svg = d3
-    .select(".d3")
-    .append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("class", "map");
-  const feature = svg.append("g");
-  const labels = svg.append("g");
-  const projection = d3.geoMercator().scale(1).translate([0, 0]);
-  const path = d3.geoPath().projection(projection);
-  const bounds = path.bounds(geojson);
-  const widthScale = (bounds[1][0] - bounds[0][0]) / width;
-  const heightScale = (bounds[1][1] - bounds[0][1]) / height;
-  const scale = 1 / Math.max(widthScale, heightScale);
-  const xoffset = width / 2 - (scale * (bounds[1][0] + bounds[0][0])) / 2;
-  const yoffset = height / 2 - (scale * (bounds[1][1] + bounds[0][1])) / 2;
-  const offset = [xoffset, yoffset];
-  projection.scale(scale).translate(offset);
-  feature
-    .selectAll("path")
-    .attr("class", "feature")
-    .data(geojson.features)
-    .enter()
-    .append("path")
-    .attr("d", path);
-  labels
-    .attr("class", "label")
-    .selectAll(".labels")
-    .data(geojson.features)
-    .enter()
-    .append("text")
-    .attr("transform", function (d) {
-      return "translate(" + path.centroid(d) + ")";
-    })
-    .text((d) => {
-      return d.properties.SIG_KOR_NM;
-    })
-    .style("text-anchor", "middle");
-}
+import data2017 from '../Assets/data/2017_data.csv';
+import data2018 from '../Assets/data/2018_data.csv';
+import data2019 from '../Assets/data/2019_data.csv';
+import dataAll from '../Assets/data/All_data.csv';
 
 export default function Dv1(props) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const Rows = load_data(setIsLoaded);
+  const [Rows, setRows] = useState([]);
+  const [year, setYear] = useState(100);
+  function load_data(year) {
+    const tuples = [];
+    if (year === 2017) {
+      d3.csv(data2017, function (data) {
+        const lat = Number(data['위도']);
+        const lng = Number(data['경도']);
+        tuples.push([lat, lng]);
+      }).then(() => {
+        setRows(tuples);
+        setIsLoaded(true);
+        console.log(tuples, isLoaded);
+      });
+    } else if (year === 2018) {
+      d3.csv(data2018, function (data) {
+        const lat = Number(data['위도']);
+        const lng = Number(data['경도']);
+        tuples.push([lat, lng]);
+      }).then(() => {
+        setRows(tuples);
+        setIsLoaded(true);
+        console.log(tuples, isLoaded);
+      });
+    } else if (year === 2019) {
+      d3.csv(data2019, function (data) {
+        const lat = Number(data['위도']);
+        const lng = Number(data['경도']);
+        tuples.push([lat, lng]);
+      }).then(() => {
+        setRows(tuples);
+        setIsLoaded(true);
+      });
+    } else {
+      d3.csv(dataAll, function (data) {
+        const lat = Number(data['위도']);
+        const lng = Number(data['경도']);
+        tuples.push([lat, lng]);
+      }).then(() => {
+        setRows(tuples);
+        setIsLoaded(true);
+        console.log(tuples);
+      });
+    }
+    return tuples;
+  }
   useEffect(() => {
-    init_DV1();
-  }, []);
+    load_data(year);
+  }, [year]);
   useEffect(() => {
-    const circles = d3.select(".map").append("g").attr("class", "plots");
-    console.log(Rows);
+    if (isLoaded) {
+      d3.select('svg').remove();
+      const projection = d3.geoMercator().scale(1).translate([0, 0]);
+      const geojson = topojson.feature(
+        koreaMap,
+        koreaMap.objects.seoul_municipalities_geo
+      );
+      const width = 500;
+      const height = 500;
+      const svg = d3
+        .select('.d3')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('class', 'map');
+      const feature = svg.append('g');
+      const circles = svg.append('g');
+      const labels = svg.append('g');
+      const path = d3.geoPath().projection(projection);
+      const bounds = path.bounds(geojson);
+      const widthScale = (bounds[1][0] - bounds[0][0]) / width;
+      const heightScale = (bounds[1][1] - bounds[0][1]) / height;
+      const scale = 1 / Math.max(widthScale, heightScale);
+      const xoffset = width / 2 - (scale * (bounds[1][0] + bounds[0][0])) / 2;
+      const yoffset = height / 2 - (scale * (bounds[1][1] + bounds[0][1])) / 2;
+      const offset = [xoffset, yoffset];
+      let active;
+      projection.scale(scale).translate(offset);
+      function click(d) {
+        if (active === d) return reset();
+        feature.selectAll('.active').classed('active', false);
+        d3.select('#' + d.properties.name).classed('active', (active = d));
+
+        var b = path.bounds(d);
+
+        feature
+          .transition()
+          .duration(750)
+          .attr(
+            'transform',
+            'translate(' +
+              projection.translate() +
+              ')' +
+              'scale(' +
+              0.95 /
+                Math.max(
+                  (b[1][0] - b[0][0]) / width,
+                  (b[1][1] - b[0][1]) / height
+                ) +
+              ')' +
+              'translate(' +
+              -(b[1][0] + b[0][0]) / 2 +
+              ',' +
+              -(b[1][1] + b[0][1]) / 2 +
+              ')'
+          );
+      }
+      function reset() {
+        feature.selectAll('.active').classed('active', (active = false));
+        feature.transition().duration(750).attr('transform', '');
+      }
+
+      labels
+        .attr('class', 'label')
+        .selectAll('.labels')
+        .data(geojson.features)
+        .enter()
+        .append('text')
+        .attr('transform', function (d) {
+          return 'translate(' + path.centroid(d) + ')';
+        })
+        .text((d) => {
+          return d.properties.SIG_KOR_NM;
+        })
+        .style('text-anchor', 'middle');
+      circles
+        .attr('class', 'circle')
+        .selectAll('.circles')
+        .data(Rows)
+        .enter()
+        .append('circle')
+        .attr('cx', function (d) {
+          return projection([d[1], d[0]])[0];
+        })
+        .attr('cy', function (d) {
+          return projection([d[1], d[0]])[1];
+        })
+        .attr('r', 2)
+        .attr('fill', '#B00000')
+        .attr('opacity', 0.8);
+      feature
+        .selectAll('path')
+        .attr('class', 'feature')
+        .data(geojson.features)
+        .enter()
+        .append('path')
+        .attr('d', path)
+        .on('click', function (d) {
+          click(d);
+        });
+    }
   }, [isLoaded]);
-  return <div className="d3"></div>;
+  return (
+    <Container fd="column">
+      <Container>
+        <Button
+          className="year"
+          secondary
+          onClick={() => {
+            if (year !== 100) {
+              setIsLoaded(false);
+              setRows([]);
+              setYear(100);
+            }
+          }}
+        >
+          ALL
+        </Button>
+        <Button
+          className="year"
+          secondary
+          onClick={() => {
+            if (year !== 2017) {
+              setIsLoaded(false);
+              setRows([]);
+              setYear(2017);
+            }
+          }}
+        >
+          2017
+        </Button>
+        <Button
+          className="year"
+          secondary
+          onClick={() => {
+            if (year !== 2018) {
+              setIsLoaded(false);
+              setRows([]);
+              setYear(0);
+              setYear(2018);
+            }
+          }}
+        >
+          2018
+        </Button>
+        <Button
+          className="year"
+          secondary
+          onClick={() => {
+            if (year !== 2019) {
+              setIsLoaded(false);
+              setRows([]);
+              setYear(0);
+              setYear(2019);
+            }
+          }}
+        >
+          2019
+        </Button>
+      </Container>
+      <h3>{`${
+        year === 100 ? '2017-2019년' : `${year}년`
+      } 사망 교통사고 발생 위치`}</h3>
+      <div className="d3"></div>
+    </Container>
+  );
 }
