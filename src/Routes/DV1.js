@@ -25,7 +25,6 @@ export default function Dv1(props) {
       }).then(() => {
         setRows(tuples);
         setIsLoaded(true);
-        console.log(tuples, isLoaded);
       });
     } else if (year === 2018) {
       d3.csv(data2018, function (data) {
@@ -35,7 +34,6 @@ export default function Dv1(props) {
       }).then(() => {
         setRows(tuples);
         setIsLoaded(true);
-        console.log(tuples, isLoaded);
       });
     } else if (year === 2019) {
       d3.csv(data2019, function (data) {
@@ -54,7 +52,6 @@ export default function Dv1(props) {
       }).then(() => {
         setRows(tuples);
         setIsLoaded(true);
-        console.log(tuples);
       });
     }
     return tuples;
@@ -66,6 +63,7 @@ export default function Dv1(props) {
     if (isLoaded) {
       d3.select('svg').remove();
       const projection = d3.geoMercator().scale(1).translate([0, 0]);
+      const path = d3.geoPath().projection(projection);
       const geojson = topojson.feature(
         koreaMap,
         koreaMap.objects.seoul_municipalities_geo
@@ -81,7 +79,6 @@ export default function Dv1(props) {
       const feature = svg.append('g');
       const circles = svg.append('g');
       const labels = svg.append('g');
-      const path = d3.geoPath().projection(projection);
       const bounds = path.bounds(geojson);
       const widthScale = (bounds[1][0] - bounds[0][0]) / width;
       const heightScale = (bounds[1][1] - bounds[0][1]) / height;
@@ -89,41 +86,8 @@ export default function Dv1(props) {
       const xoffset = width / 2 - (scale * (bounds[1][0] + bounds[0][0])) / 2;
       const yoffset = height / 2 - (scale * (bounds[1][1] + bounds[0][1])) / 2;
       const offset = [xoffset, yoffset];
-      let active;
+      let centered;
       projection.scale(scale).translate(offset);
-      function click(d) {
-        if (active === d) return reset();
-        feature.selectAll('.active').classed('active', false);
-        d3.select('#' + d.properties.name).classed('active', (active = d));
-
-        var b = path.bounds(d);
-
-        feature
-          .transition()
-          .duration(750)
-          .attr(
-            'transform',
-            'translate(' +
-              projection.translate() +
-              ')' +
-              'scale(' +
-              0.95 /
-                Math.max(
-                  (b[1][0] - b[0][0]) / width,
-                  (b[1][1] - b[0][1]) / height
-                ) +
-              ')' +
-              'translate(' +
-              -(b[1][0] + b[0][0]) / 2 +
-              ',' +
-              -(b[1][1] + b[0][1]) / 2 +
-              ')'
-          );
-      }
-      function reset() {
-        feature.selectAll('.active').classed('active', (active = false));
-        feature.transition().duration(750).attr('transform', '');
-      }
 
       labels
         .attr('class', 'label')
@@ -155,78 +119,129 @@ export default function Dv1(props) {
         .attr('opacity', 0.8);
       feature
         .selectAll('path')
-        .attr('class', 'feature')
         .data(geojson.features)
         .enter()
         .append('path')
+        .attr('class', function (d) {
+          return d.properties.SIG_KOR_NM;
+        })
         .attr('d', path)
-        .on('click', function (d) {
+        .on('click', function (e, d) {
           click(d);
         });
+      function click(d) {
+        let x, y, k;
+        if (d && centered !== d) {
+          var centroid = path.centroid(d);
+          k = 2;
+          x = centroid[0] - width / 4;
+          y = centroid[1] - height / 4;
+          centered = d;
+        } else {
+          x = 0;
+          y = 0;
+          k = 1;
+          centered = null;
+        }
+        feature.selectAll('path').classed(
+          'active',
+          centered &&
+            function (d) {
+              return d === centered;
+            }
+        );
+        feature
+          .transition()
+          .duration(750)
+          .attr(
+            'transform',
+            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+          );
+        circles
+          .transition()
+          .duration(750)
+          .attr(
+            'transform',
+            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+          );
+        labels
+          .transition()
+          .duration(750)
+          .attr(
+            'transform',
+            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+          );
+      }
     }
   }, [isLoaded]);
   return (
-    <Container fd="column">
-      <Container>
-        <Button
-          className="year"
-          secondary
-          onClick={() => {
-            if (year !== 100) {
-              setIsLoaded(false);
-              setRows([]);
-              setYear(100);
-            }
-          }}
-        >
-          ALL
-        </Button>
-        <Button
-          className="year"
-          secondary
-          onClick={() => {
-            if (year !== 2017) {
-              setIsLoaded(false);
-              setRows([]);
-              setYear(2017);
-            }
-          }}
-        >
-          2017
-        </Button>
-        <Button
-          className="year"
-          secondary
-          onClick={() => {
-            if (year !== 2018) {
-              setIsLoaded(false);
-              setRows([]);
-              setYear(0);
-              setYear(2018);
-            }
-          }}
-        >
-          2018
-        </Button>
-        <Button
-          className="year"
-          secondary
-          onClick={() => {
-            if (year !== 2019) {
-              setIsLoaded(false);
-              setRows([]);
-              setYear(0);
-              setYear(2019);
-            }
-          }}
-        >
-          2019
-        </Button>
+    <Container>
+      <Container fd="column">
+        <Container>
+          <Button
+            className="year"
+            secondary
+            onClick={() => {
+              if (year !== 100) {
+                setIsLoaded(false);
+                setRows([]);
+                setYear(100);
+              }
+            }}
+          >
+            ALL
+          </Button>
+          <Button
+            className="year"
+            secondary
+            onClick={() => {
+              if (year !== 2017) {
+                setIsLoaded(false);
+                setRows([]);
+                setYear(2017);
+              }
+            }}
+          >
+            2017
+          </Button>
+          <Button
+            className="year"
+            secondary
+            onClick={() => {
+              if (year !== 2018) {
+                setIsLoaded(false);
+                setRows([]);
+                setYear(0);
+                setYear(2018);
+              }
+            }}
+          >
+            2018
+          </Button>
+          <Button
+            className="year"
+            secondary
+            onClick={() => {
+              if (year !== 2019) {
+                setIsLoaded(false);
+                setRows([]);
+                setYear(0);
+                setYear(2019);
+              }
+            }}
+          >
+            2019
+          </Button>
+        </Container>
+        <h3>{`${
+          year === 100 ? '2017-2019년' : `${year}년`
+        } 사망 교통사고 발생 위치`}</h3>
+        <div className="d3"></div>
       </Container>
-      <h3>{`${
-        year === 100 ? '2017-2019년' : `${year}년`
-      } 사망 교통사고 발생 위치`}</h3>
-      <div className="d3"></div>
+
+      {/* <div>선택된 구: {goo}</div>
+      <div style={{ marginTop: '20px' }}>사망 교통사고 수: {casulty}</div>
+      <div style={{ marginTop: '20px' }}>사망자 수 : {casulty}</div> */}
     </Container>
   );
 }

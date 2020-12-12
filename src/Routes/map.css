@@ -5,8 +5,13 @@
 }
 path {
   fill: darkseagreen;
+  cursor: zoom-in;
 }
 path:hover {
   fill: rgba(255, 140, 0, 0.5);
-  cursor: zoom-in;
+}
+
+.active {
+  fill: rgba(255, 140, 0, 0.5);
+  cursor: zoom-out;
 }

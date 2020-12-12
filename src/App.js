@@ -1,18 +1,18 @@
-import "./App.css";
-import Card from "./components/Card";
-import Button from "./components/Buttons";
-import Container from "./components/Container";
+import './App.css';
+import Card from './components/Card';
+import Button from './components/Buttons';
+import Container from './components/Container';
 
-import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom';
 
-import Main from "./Routes/Main";
-import Data from "./Routes/Data";
-import DV1 from "./Routes/DV1";
-import DV2 from "./Routes/DV2";
+import Main from './Routes/Main';
+import Data from './Routes/Data';
+import DV1 from './Routes/DV1';
+import DV2 from './Routes/DV2';
 
 function App() {
   return (
-    <Container width="1200px" height="900px" jc="center">
+    <Container width="1600px" height="900px" jc="center">
       <BrowserRouter basename="/DV_Final">
         <Card width="200px" height="600px" fd="column">
           <Link to="/data">
@@ -35,7 +35,12 @@ function App() {
           <Switch>
             <Route exact path="/" component={Main}></Route>
             <Route path="/data" component={Data}></Route>
-            <Route path="/dv1" component={DV1}></Route>
+            <Route
+              path="/dv1"
+              component={() => {
+                return <DV1 />;
+              }}
+            ></Route>
             <Route path="/dv2" component={DV2}></Route>
           </Switch>
         </Card>
