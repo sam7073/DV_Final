@@ -1,55 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import * as d3 from 'd3';
-import * as topojson from 'topojson';
-import koreaMap from '../Assets/data/seoul_municipalities_topo_simple.json';
-import './map.css';
-import Button from '../components/Buttons';
-import Container from '../components/Container';
+import React, { useEffect, useState } from "react";
+import * as d3 from "d3";
+import * as topojson from "topojson";
+import koreaMap from "../Assets/data/seoul_municipalities_topo_simple.json";
+import "./map.css";
+import Button from "../components/Buttons";
+import Container from "../components/Container";
 
-import data2017 from '../Assets/data/2017_data.csv';
-import data2018 from '../Assets/data/2018_data.csv';
-import data2019 from '../Assets/data/2019_data.csv';
-import dataAll from '../Assets/data/All_data.csv';
+import data2017 from "../Assets/data/2017_data.csv";
+import data2018 from "../Assets/data/2018_data.csv";
+import data2019 from "../Assets/data/2019_data.csv";
+import dataAll from "../Assets/data/All_data.csv";
 
 export default function Dv1(props) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [Rows, setRows] = useState([]);
   const [year, setYear] = useState(100);
+  const [plotColor, setPlotColor] = useState("red");
   function load_data(year) {
     const tuples = [];
     if (year === 2017) {
       d3.csv(data2017, function (data) {
-        const lat = Number(data['위도']);
-        const lng = Number(data['경도']);
+        const lat = Number(data["위도"]);
+        const lng = Number(data["경도"]);
         tuples.push([lat, lng]);
       }).then(() => {
+        setPlotColor("blue");
         setRows(tuples);
         setIsLoaded(true);
       });
     } else if (year === 2018) {
       d3.csv(data2018, function (data) {
-        const lat = Number(data['위도']);
-        const lng = Number(data['경도']);
+        const lat = Number(data["위도"]);
+        const lng = Number(data["경도"]);
         tuples.push([lat, lng]);
       }).then(() => {
+        setPlotColor("yellow");
         setRows(tuples);
         setIsLoaded(true);
       });
     } else if (year === 2019) {
       d3.csv(data2019, function (data) {
-        const lat = Number(data['위도']);
-        const lng = Number(data['경도']);
+        const lat = Number(data["위도"]);
+        const lng = Number(data["경도"]);
         tuples.push([lat, lng]);
       }).then(() => {
+        setPlotColor("purple");
         setRows(tuples);
         setIsLoaded(true);
       });
     } else {
       d3.csv(dataAll, function (data) {
-        const lat = Number(data['위도']);
-        const lng = Number(data['경도']);
+        const lat = Number(data["위도"]);
+        const lng = Number(data["경도"]);
         tuples.push([lat, lng]);
       }).then(() => {
+        setPlotColor("red");
         setRows(tuples);
         setIsLoaded(true);
       });
@@ -61,7 +66,7 @@ export default function Dv1(props) {
   }, [year]);
   useEffect(() => {
     if (isLoaded) {
-      d3.select('svg').remove();
+      d3.select("svg").remove();
       const projection = d3.geoMercator().scale(1).translate([0, 0]);
       const path = d3.geoPath().projection(projection);
       const geojson = topojson.feature(
@@ -71,14 +76,14 @@ export default function Dv1(props) {
       const width = 500;
       const height = 500;
       const svg = d3
-        .select('.d3')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .attr('class', 'map');
-      const feature = svg.append('g');
-      const circles = svg.append('g');
-      const labels = svg.append('g');
+        .select(".d3")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("class", "map");
+      const feature = svg.append("g");
+      const circles = svg.append("g");
+      const labels = svg.append("g");
       const bounds = path.bounds(geojson);
       const widthScale = (bounds[1][0] - bounds[0][0]) / width;
       const heightScale = (bounds[1][1] - bounds[0][1]) / height;
@@ -90,43 +95,46 @@ export default function Dv1(props) {
       projection.scale(scale).translate(offset);
 
       labels
-        .attr('class', 'label')
-        .selectAll('.labels')
+        .attr("class", "label")
+        .selectAll(".labels")
         .data(geojson.features)
         .enter()
-        .append('text')
-        .attr('transform', function (d) {
-          return 'translate(' + path.centroid(d) + ')';
+        .append("text")
+        .attr("transform", function (d) {
+          return "translate(" + path.centroid(d) + ")";
         })
         .text((d) => {
           return d.properties.SIG_KOR_NM;
         })
-        .style('text-anchor', 'middle');
+        .style("text-anchor", "middle");
       circles
-        .attr('class', 'circle')
-        .selectAll('.circles')
+        .attr("class", "circle")
+        .selectAll(".circles")
         .data(Rows)
         .enter()
-        .append('circle')
-        .attr('cx', function (d) {
+        .append("circle")
+        .attr("cx", function (d) {
           return projection([d[1], d[0]])[0];
         })
-        .attr('cy', function (d) {
+        .attr("cy", function (d) {
           return projection([d[1], d[0]])[1];
         })
-        .attr('r', 2)
-        .attr('fill', '#B00000')
-        .attr('opacity', 0.8);
+        .attr("r", 2)
+        .attr("fill", function (d) {
+          console.log(d);
+          return plotColor;
+        })
+        .attr("opacity", 0.8);
       feature
-        .selectAll('path')
+        .selectAll("path")
         .data(geojson.features)
         .enter()
-        .append('path')
-        .attr('class', function (d) {
+        .append("path")
+        .attr("class", function (d) {
           return d.properties.SIG_KOR_NM;
         })
-        .attr('d', path)
-        .on('click', function (e, d) {
+        .attr("d", path)
+        .on("click", function (e, d) {
           click(d);
         });
       function click(d) {
@@ -143,8 +151,8 @@ export default function Dv1(props) {
           k = 1;
           centered = null;
         }
-        feature.selectAll('path').classed(
-          'active',
+        feature.selectAll("path").classed(
+          "active",
           centered &&
             function (d) {
               return d === centered;
@@ -154,22 +162,22 @@ export default function Dv1(props) {
           .transition()
           .duration(750)
           .attr(
-            'transform',
-            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+            "transform",
+            "scale(" + k + ")translate(" + -x + "," + -y + ")"
           );
         circles
           .transition()
           .duration(750)
           .attr(
-            'transform',
-            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+            "transform",
+            "scale(" + k + ")translate(" + -x + "," + -y + ")"
           );
         labels
           .transition()
           .duration(750)
           .attr(
-            'transform',
-            'scale(' + k + ')translate(' + -x + ',' + -y + ')'
+            "transform",
+            "scale(" + k + ")translate(" + -x + "," + -y + ")"
           );
       }
     }
@@ -234,7 +242,7 @@ export default function Dv1(props) {
           </Button>
         </Container>
         <h3>{`${
-          year === 100 ? '2017-2019년' : `${year}년`
+          year === 100 ? "2017-2019년" : `${year}년`
         } 사망 교통사고 발생 위치`}</h3>
         <div className="d3"></div>
       </Container>
